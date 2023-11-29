@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.devsuperior.dscatalog.entities.Category;
 
+// Camada de acesso aos dados (banco de dados)
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 

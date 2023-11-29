@@ -12,17 +12,19 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "tb_category")
+@Entity // Indica uma Entidade
+@Table(name = "tb_category") // Nome da tabela no banco de dados
 public class Category {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id // Indica um identificador único
+	@GeneratedValue(strategy = GenerationType.IDENTITY) // Id auto incrementável
 	private Long id;
 	private String name;
 	
+	// Data da criação do registro
 	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
 	private Instant createdAt;
 
+	// Data da atualização do registro
 	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
 	private Instant updatedAt;
 
@@ -58,12 +60,12 @@ public class Category {
 		return updatedAt;
 	}
 
-	@PrePersist
+	@PrePersist // Atualizar os valores
 	public void prePersist() {
 		createdAt = Instant.now();
 	}
 	
-	@PreUpdate
+	@PreUpdate // Atualizar os valores
 	public void preUpdate() {
 		updatedAt = Instant.now();
 	}

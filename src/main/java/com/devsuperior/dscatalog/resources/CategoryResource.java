@@ -19,42 +19,45 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.services.CategoryService;
 
-@RestController
-@RequestMapping(value = "/categories")
+@RestController // API Rest
+@RequestMapping(value = "/categories") // rota da web
 public class CategoryResource {
 
-	@Autowired
+	@Autowired // Chamar o Service - Injeção de dependência - Padrão Camadas
 	private CategoryService service;
+
+	// ResponseEntity = Padronização de retorno de resposta
 	
 	@GetMapping
 	public ResponseEntity<Page<CategoryDTO>> findAll(Pageable pageable) {
 		Page<CategoryDTO> list = service.findAllPaged(pageable);		
-		return ResponseEntity.ok().body(list);
+		return ResponseEntity.ok().body(list); // Retornar Status 200
 	}
 
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<CategoryDTO> findById(@PathVariable Long id) {
 		CategoryDTO dto = service.findById(id);
-		return ResponseEntity.ok().body(dto);
+		return ResponseEntity.ok().body(dto); // Retornar Status 200
 	}
 	
 	@PostMapping
 	public ResponseEntity<CategoryDTO> insert(@RequestBody CategoryDTO dto) {
 		dto = service.insert(dto);
+		// URI = link do recurso criado | Boa prática
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
 				.buildAndExpand(dto.getId()).toUri();
-		return ResponseEntity.created(uri).body(dto);
+		return ResponseEntity.created(uri).body(dto); // Retornar Status 201 Created
 	}
 
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @RequestBody CategoryDTO dto) {
 		dto = service.update(id, dto);
-		return ResponseEntity.ok().body(dto);
+		return ResponseEntity.ok().body(dto); // Retornar Status 200
 	}
 
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.noContent().build(); // Retornar Status 204 = Sem retorno
 	}
 } 

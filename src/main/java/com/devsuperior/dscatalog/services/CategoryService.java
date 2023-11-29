@@ -18,10 +18,11 @@ import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 
-@Service
+// Camada de acesso aos serviços (chama a camada de acesso aos dados)
+@Service // Indica um Serviço
 public class CategoryService {
 
-	@Autowired
+	@Autowired // Chamar o Repository - Injeção de dependência - Padrão Camadas
 	private CategoryRepository repository;
 	
 	@Transactional(readOnly = true)

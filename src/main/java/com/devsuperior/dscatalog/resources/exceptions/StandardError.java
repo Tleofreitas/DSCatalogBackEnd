@@ -3,6 +3,7 @@ package com.devsuperior.dscatalog.resources.exceptions;
 import java.io.Serializable;
 import java.time.Instant;
 
+// Devolver dados da requisição
 public class StandardError implements Serializable {
 	private static final long serialVersionUID = 1L;
 
