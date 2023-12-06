@@ -1,6 +1,7 @@
 package com.devsuperior.dscatalog.services;
 
 import com.devsuperior.dscatalog.repositories.ProductRepository;
+import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,8 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.Assert;
 
 @ExtendWith(SpringExtension.class) // Testes de Unidade
 public class ProductServicesTests {
@@ -24,16 +25,21 @@ public class ProductServicesTests {
     // Fixtures - Para evitar repetição de código em muitos testes
     private long existingId;
     private long notExistingId;
+    private long dependentId;
 
     @BeforeEach
     void setUp() throws Exception{
         existingId = 1L;
-        notExistingId = 1000L;
+        notExistingId = 2L;
+        dependentId = 3L;
 
         // Configurar o comportamento simulado do delete by id -----------------------
 
             // Quando chamar o delete com id existente, método não faz nada
             Mockito.doNothing().when(repository).deleteById(existingId);
+
+            // Quando chamar o delete com Id dependente (com relação de integridade) lança Exceção
+            Mockito.doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependentId);
 
             // Se Id existe retorna true
             Mockito.when(repository.existsById(existingId)).thenReturn(true);
@@ -42,7 +48,7 @@ public class ProductServicesTests {
             Mockito.when(repository.existsById(notExistingId)).thenReturn(false);
 
             // Se for Id dependente (relação de integridade com outra entidade) retorna true
-            // Mockito.when(repository.existsById(dependentId)).thenReturn(true);
+            Mockito.when(repository.existsById(dependentId)).thenReturn(true);
 
         // ----------------------------------------------------------------------------
     }
@@ -61,6 +67,13 @@ public class ProductServicesTests {
     public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExists() {
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             service.delete(notExistingId);
+        });
+    }
+
+    @Test
+    public void deleteShouldThrowDatabaseExceptionWhenDependentId() {
+        Assertions.assertThrows(DatabaseException.class, () -> {
+            service.delete(dependentId);
         });
     }
 }
