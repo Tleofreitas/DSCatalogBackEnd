@@ -63,7 +63,8 @@ public class ProductServicesTests {
         // Simulação do findAll retorna page contendo uma lista com produto
         Mockito.when(repository.findAll((Pageable)ArgumentMatchers.any())).thenReturn(page);
 
-        
+        // Simulação do Save com etidade qualquer retorna produto
+        Mockito.when(repository.save(ArgumentMatchers.any())).thenReturn(product);
     }
 
     @Test
