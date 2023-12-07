@@ -1,17 +1,21 @@
 package com.devsuperior.dscatalog.services;
 
+import com.devsuperior.dscatalog.entities.Product;
 import com.devsuperior.dscatalog.repositories.ProductRepository;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
+import com.devsuperior.dscatalog.tests.Factory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.List;
 
 @ExtendWith(SpringExtension.class) // Testes de Unidade
 public class ProductServicesTests {
@@ -26,12 +30,16 @@ public class ProductServicesTests {
     private long existingId;
     private long notExistingId;
     private long dependentId;
+    private PageImpl<Product> page;
+    private Product product;
 
     @BeforeEach
-    void setUp() throws Exception{
+    void setUp() throws Exception {
         existingId = 1L;
         notExistingId = 2L;
         dependentId = 3L;
+        product = Factory.createProduct();
+        page = new PageImpl<>(List.of(product));
 
         // Configurar o comportamento simulado do delete by id -----------------------
 
@@ -51,6 +59,11 @@ public class ProductServicesTests {
             Mockito.when(repository.existsById(dependentId)).thenReturn(true);
 
         // ----------------------------------------------------------------------------
+
+        // Simulação do findAll retorna page contendo uma lista com produto
+        Mockito.when(repository.findAll((Pageable)ArgumentMatchers.any())).thenReturn(page);
+
+        
     }
 
     @Test
