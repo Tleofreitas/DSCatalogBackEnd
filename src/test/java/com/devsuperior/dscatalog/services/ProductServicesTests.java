@@ -1,11 +1,14 @@
 package com.devsuperior.dscatalog.services;
 
 import com.devsuperior.dscatalog.dto.ProductDTO;
+import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
+import com.devsuperior.dscatalog.repositories.CategoryRepository;
 import com.devsuperior.dscatalog.repositories.ProductRepository;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import com.devsuperior.dscatalog.tests.Factory;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +32,8 @@ public class ProductServicesTests {
     private ProductService service;
     @Mock
     private ProductRepository repository;
+    @Mock
+    private CategoryRepository categoryRepository;
 
     // Fixtures - Para evitar repetição de código em muitos testes
     private long existingId;
@@ -36,6 +41,8 @@ public class ProductServicesTests {
     private long dependentId;
     private PageImpl<Product> page;
     private Product product;
+    private Category category;
+    ProductDTO productDTO;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -43,6 +50,8 @@ public class ProductServicesTests {
         notExistingId = 2L;
         dependentId = 3L;
         product = Factory.createProduct();
+        category = Factory.createCategory();
+        productDTO = Factory.createProductDTO();
         page = new PageImpl<>(List.of(product));
 
         // Configurar o comportamento simulado do delete by id -----------------------
@@ -75,6 +84,14 @@ public class ProductServicesTests {
 
         // Simulação do find by Id com id inexistente
         Mockito.when(repository.findById(notExistingId)).thenReturn(Optional.empty());
+
+        // Simulação do update com id existente
+        Mockito.when(repository.getOne(existingId)).thenReturn(product);
+        Mockito.when(categoryRepository.getOne(existingId)).thenReturn(category);
+
+        // Simulação do update com id inexistente
+        Mockito.when(repository.getOne(notExistingId)).thenThrow(EntityNotFoundException.class);
+        Mockito.when(categoryRepository.getOne(notExistingId)).thenThrow(EntityNotFoundException.class);
     }
 
     @Test
@@ -125,6 +142,20 @@ public class ProductServicesTests {
     public void findByIdShouldThrowResourceNotFoundExceptionWhenWhenIdDoesNotExists() {
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             service.findById(notExistingId);
+        });
+    }
+
+    @Test
+    public void updateShouldReturnProductDTOWhenIdExists() {
+        ProductDTO result = service.update(existingId, productDTO);
+
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void updateShouldThrowResourceNotFoundExceptionWhenIdDoesNotExistis() {
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+           service.update(notExistingId, productDTO);
         });
     }
 }
