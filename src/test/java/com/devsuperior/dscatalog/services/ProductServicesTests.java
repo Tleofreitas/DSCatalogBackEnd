@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(SpringExtension.class) // Testes de Unidade
 public class ProductServicesTests {
@@ -65,6 +66,9 @@ public class ProductServicesTests {
 
         // Simulação do Save com etidade qualquer retorna produto
         Mockito.when(repository.save(ArgumentMatchers.any())).thenReturn(product);
+
+        // Simulação do find by Id com id existente
+        Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(product));
     }
 
     @Test
