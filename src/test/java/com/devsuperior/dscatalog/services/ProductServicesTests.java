@@ -113,4 +113,18 @@ public class ProductServicesTests {
         Assertions.assertNotNull(result);
         Mockito.verify(repository).findAll(pageable);
     }
+
+    @Test
+    public void findByIdShouldReturnProductDTOWhenIdExists() {
+        ProductDTO result = service.findById(existingId);
+
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void findByIdShouldThrowResourceNotFoundExceptionWhenWhenIdDoesNotExists() {
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.findById(notExistingId);
+        });
+    }
 }
