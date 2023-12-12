@@ -86,12 +86,12 @@ public class ProductServicesTests {
         Mockito.when(repository.findById(notExistingId)).thenReturn(Optional.empty());
 
         // Simulação do update com id existente
-        Mockito.when(repository.getOne(existingId)).thenReturn(product);
-        Mockito.when(categoryRepository.getOne(existingId)).thenReturn(category);
+        Mockito.when(repository.getReferenceById(existingId)).thenReturn(product);
+        Mockito.when(categoryRepository.getReferenceById(existingId)).thenReturn(category);
 
         // Simulação do update com id inexistente
-        Mockito.when(repository.getOne(notExistingId)).thenThrow(EntityNotFoundException.class);
-        Mockito.when(categoryRepository.getOne(notExistingId)).thenThrow(EntityNotFoundException.class);
+        Mockito.when(repository.getReferenceById(notExistingId)).thenThrow(EntityNotFoundException.class);
+        Mockito.when(categoryRepository.getReferenceById(notExistingId)).thenThrow(EntityNotFoundException.class);
     }
 
     @Test
