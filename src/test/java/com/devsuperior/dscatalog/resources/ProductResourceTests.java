@@ -2,6 +2,7 @@ package com.devsuperior.dscatalog.resources;
 
 import com.devsuperior.dscatalog.dto.ProductDTO;
 import com.devsuperior.dscatalog.services.ProductService;
+import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import com.devsuperior.dscatalog.tests.Factory;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,9 +20,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,11 +37,13 @@ public class ProductResourceTests {
     private PageImpl<ProductDTO> page;
     private Long existingId;
     private Long noExistingId;
+    private Long dependentId;
 
     @BeforeEach
     void setUp() throws Exception {
         existingId = 1L;
         noExistingId = 2l;
+        dependentId = 3l;
 
         // Simular comportamento do find all paged
         productDTO = Factory.createProductDTO();
@@ -60,6 +62,36 @@ public class ProductResourceTests {
 
         // Simular comportamento do update com Id Inexistente
         when(service.update(eq(noExistingId), any())).thenThrow(ResourceNotFoundException.class);
+
+        // Simular comportamento do delete com id ok
+        doNothing().when(service).delete(existingId);;
+
+        // Simular comportamento do delete com Id Inexistente
+        doThrow(ResourceNotFoundException.class).when(service).delete(noExistingId);
+
+        // Simular comportamento do delete com Id dependente
+        doThrow(DatabaseException.class).when(service).delete(dependentId);
+
+        // Simular comportamento do insert
+        when(service.insert(any())).thenReturn(productDTO);
+    }
+
+    @Test
+    public void insertShoulReturnProductDTOCreated() throws Exception {
+        // Corpo no formato de JSON - Conversão de ProductDTO para String
+        String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+        ResultActions result =
+                mockMvc.perform(post("/products")
+                        .content(jsonBody)
+                        // Tipo do corpo da requisição
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isCreated());
+        result.andExpect(jsonPath("$.id").exists());
+        result.andExpect(jsonPath("$.name").exists());
+        result.andExpect(jsonPath("$.description").exists());
     }
 
     @Test
