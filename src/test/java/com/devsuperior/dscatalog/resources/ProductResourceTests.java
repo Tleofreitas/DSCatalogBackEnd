@@ -75,6 +75,22 @@ public class ProductResourceTests {
         // Simular comportamento do insert
         when(service.insert(any())).thenReturn(productDTO);
     }
+    @Test
+    public void deleteShouldReturnNoContentWhenIdExistis() throws Exception {
+        ResultActions result =
+                mockMvc.perform(delete("/products/{id}", existingId)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNoContent());
+    }
+    @Test
+    public void deleteShouldReturnNotFoundWhenIdDoesNotExists() throws Exception {
+        ResultActions result =
+                mockMvc.perform(delete("/products/{id}", noExistingId)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNotFound());
+    }
 
     @Test
     public void insertShoulReturnProductDTOCreated() throws Exception {
